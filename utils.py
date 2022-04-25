@@ -1,9 +1,5 @@
 import os
 import numpy as onp #o for "old" or "original"
-
-#os.environ["LD_LIBRARY_PATH"]="/usr/lib/x86_64-linux-gnu/" #this is where the libcudnn.so file resides
-#os.environ["JAX_PLATFORM_NAME"] = "cpu"
-
 import jax.numpy as np
 import jax
 from jax import grad, jit, lax, random, ops, vmap, jacfwd, jacrev, device_get, device_put
@@ -16,7 +12,7 @@ def generate_couplings_dic(n, prob=0.5, sigma=0):
     '''
     Generate a realization of the couplings:
     J_{k,p} = 2^{k \sigma} x, where x is {-1,1} with 
-    probability {1-prob, prob}. 
+    probability {1-prob, prob}. Returns a dict.
     '''
     couplings = {(k,p): (2**(k*sigma))*(2*onp.random.binomial(1, prob) - 1) for k in range(n+1) for p in range(1,2**(n-k)+1)}
     return couplings
@@ -26,7 +22,7 @@ def generate_couplings(n, prob=0.5, sigma=0):
     '''
     Generate a realization of the couplings:
     J_{k,p} = 2^{k \sigma} x, where x is {-1,1} with 
-    probability {1-prob, prob}. 
+    probability {1-prob, prob}. Returns an array.
     '''
     couplings = {(k,p): (2**(k*sigma))*(2*onp.random.binomial(1, prob) - 1.0) for k in range(n+1) for p in range(1,2**(n-k)+1)}
     return np.asarray(list(couplings.values()))
@@ -66,7 +62,7 @@ def Nishimorhi_beta(prob):
 def index_dictionaries(n):
     '''
     Find the map and inverse map from the tree indices (k,p)
-    to a 1d array index i
+    to a 1d array index i=1,...
     '''
     i = 0
     i_to_kp = {}
