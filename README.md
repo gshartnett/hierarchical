@@ -1,7 +1,7 @@
 # The Hierarchical Parity Model
 Code repository for the paper "The Hierarchical Parity Model: A Computationally Tractable Spin-Glass"
 
-<img src="figures/binary_tree.png" alt="comparison" width="500"/>
+<img src="figures/binary_tree_with_background.png" alt="comparison" width="500"/>
 
 ## Introduction
 This repository contains the code used for the numerical analyses of the hierarchical parity model.
