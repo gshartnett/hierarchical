@@ -178,13 +178,14 @@ def energy(beta, couplings):
 
 
 @jit
-def specific_heat(beta, couplings):
+def heat_capacity(beta, couplings):
     '''
-    Compute the specific heat:
+    Compute the heat capacity:
     C = - T \partial_T^2 F, or 
-    C = (-\beta^3 \partial_{\beta}^2 - 2 \beta^2 \partial_{\beta} F)
+    C = \beta^2 \partial_{\beta}^2 \ln Z
     '''
-    return - beta**3*d2lnZ_by_dbeta(beta, couplings) - 2*beta**2*d2lnZ_by_dbeta(beta, couplings)
+    #return - beta**3*d2lnZ_by_dbeta(beta, couplings) - 2*beta**2*dlnZ_by_dbeta(beta, couplings)
+    return beta**2 * d2lnZ_by_dbeta(beta, couplings)
 
 
 @jit
@@ -206,8 +207,10 @@ def d2lnZ_by_dJ(beta, couplings):
 def chi_SG(beta, couplings):
     '''
     The spin-glass susceptability
-    \frac{\beta^2}{N} \sum_{ij} (<s_i s_j> - <s_i><s_j>)^2
-    Note: this need an expectation value over the disorder
+    \frac{\beta^2}{N} \sum_{ij} (<s_i s_j> - <s_i><s_j>)^2.
+    The gradient is taken wrt all the couplings, but we only need
+    the first 2**n couplings (the local magnetic fields J_{0,p}).
+    Note: this needs an expectation value over the disorder
     '''
     n = int(onp.log((len(couplings)+1)/2)/onp.log(2))
     return np.sum(np.square(d2lnZ_by_dJ(beta, couplings)[0:2**n, 0:2**n]))/2**n
