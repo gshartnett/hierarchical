@@ -18,4 +18,4 @@ The Jupyter notebook `hierarchical parity model.ipynb` requires that [Google Jax
 This code is provided under the MIT license. See `LICENSE` for more information.
 
 ## Contact
-Developed by [Gavin Hartnett](https://www.rand.org/about/people/h/hartnett_gavin_s.html) (email: hartnett@prgs.edu).
+Developed by [Gavin Hartnett](https://www.rand.org/about/people/h/hartnett_gavin_s.html) (email: hartnett@rand.org).
