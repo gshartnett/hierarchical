@@ -1,4 +1,5 @@
-import os
+from itertools import product
+from collections import Counter
 import numpy as onp #o for "old" or "original"
 import jax.numpy as np
 import jax
@@ -6,6 +7,88 @@ from jax import grad, jit, lax, random, ops, vmap, jacfwd, jacrev, device_get, d
 from jax.lib import xla_bridge
 print("jax version {}".format(jax.__version__))
 print("jax backend {}".format(xla_bridge.get_backend().platform))
+
+
+def compute_states(k):
+    ''' 
+    Generate all 2^(2^k) states at level k.
+    Represent the states as binary bit strings, i.e., '01001100'
+    '''
+    N = 2**k
+    return ["".join(str(bit) for bit in bits) for bits in product([0, 1], repeat=N)]
+
+def compute_parity(state):
+    '''Return the parity of the state.'''
+    if len(state) > 1:
+        return -(2*(state.count('1') % 2) - 1)
+    elif state == '0':
+        return -1
+    else:
+        return 1
+
+def compute_uniform_Hamiltonian(state, J):
+    '''Compute the energy of a state for the uniform model.'''
+    N = len(state)
+    if N > 1:
+        stateL = state[:N//2]
+        stateR = state[N//2:]
+        HL = compute_uniform_Hamiltonian(stateL, J)
+        HR = compute_uniform_Hamiltonian(stateR, J)
+        return HL + HR - J*compute_parity(state)
+    elif state == '0':
+        return J
+    else:
+        return -J
+    
+
+def compute_uniform_gs_degen(k, J, parity=None):
+    '''
+    Compute the ground state energy and degenerarcy.
+    Allows for filtering of states by parity, in which case the function 
+    only returns the lowest energy state, which might not be the ground state.
+    '''
+    states = compute_states(k)
+    if parity is not None:
+        states = [s for s in states if compute_parity(s)==parity]
+    state_dic = {state:compute_uniform_Hamiltonian(state, J) for state in states}
+    counts = Counter(state_dic.values())
+    Egs = min(counts.keys())
+    dgs = counts[Egs]
+    return Egs, dgs
+
+
+def splitList(array):
+    '''Given an array, split it into two halves.'''
+    n = len(array)
+    half = int(n/2) # py3
+    return array[:half], array[n-half:]
+
+
+def splitState(state):
+    '''Given a string, split it into two halves.'''
+    n = len(state)
+    half = int(n/2)
+    return state[:half], state[n-half:]
+
+
+def Hamiltonian(state, coupling):
+    '''Compute the energy of a state for a given list of couplings.'''
+    N = len(state)
+    assert len(coupling) == 2*N - 1
+    if N == 1:
+        return -coupling[0]*compute_parity(state)
+    else:
+        couplingL, couplingR = splitList(coupling[1:])
+        stateL, stateR = splitState(state)
+        return -coupling[0]*compute_parity(state) + Hamiltonian(stateL, couplingL) + Hamiltonian(stateR, couplingR)
+    
+    
+def compute_spectrum(couplings):
+    '''Given a list of couplings, compute the full spectrum.'''
+    N = (len(couplings) + 1)//2
+    n = int(np.log(N)/np.log(2))
+    states = compute_states(n)
+    return Counter([Hamiltonian(s, couplings) for s in states])
 
 
 def generate_couplings_dic(n, prob=0.5, sigma=0):
