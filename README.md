@@ -8,7 +8,7 @@ This repository contains the code used for the numerical analyses of the hierarc
 
 ## Contents
 The key contents of this repository are:
-- `hierarchical parity model.ipynb` A Python Jupyter notebook which contains the Jax automatic differentiation (autodiff) code used to perform the analysis of the disordered model (Section 5 of the paper).
+- `hierarchical parity model.ipynb` A Python Jupyter notebook which contains code used to perform the numerical analyses in the paper.
 - `utils.py` a Python script containing useful helper functions.
 
 ## Installation
@@ -18,4 +18,4 @@ The Jupyter notebook `hierarchical parity model.ipynb` requires that [Google Jax
 This code is provided under the MIT license. See `LICENSE` for more information.
 
 ## Contact
-Developed by [Gavin Hartnett](https://www.rand.org/about/people/h/hartnett_gavin_s.html) (email: hartnett@rand.org).
+Developed by Gavin Hartnett (email: hartnett@rand.org).
