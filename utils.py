@@ -1,5 +1,6 @@
 from itertools import product
 from collections import Counter
+import functools
 import numpy as onp #o for "old" or "original"
 import jax.numpy as np
 import jax
@@ -9,6 +10,29 @@ print("jax version {}".format(jax.__version__))
 print("jax backend {}".format(xla_bridge.get_backend().platform))
 
 
+@functools.lru_cache(maxsize=None)
+def parity_uniform(n, J, beta):
+    '''The recursion relation for the uniform model parity.'''
+    if n == 0:
+        return onp.tanh(beta*J)
+    else:
+        return (onp.tanh(beta*J) + parity_uniform(n-1, J, beta)**2) / (1 + parity_uniform(n-1, J, beta)**2 * onp.tanh(beta*J)) 
+    
+    
+def coth(x): 
+    '''Hyperbolic cotangent'''
+    return onp.cosh(x)/onp.sinh(x) 
+
+
+def parity_uniform_analytic(J, beta):
+    '''The analytic prediction for the parity of the uniform model.'''
+    bJ = beta*J
+    if bJ <= onp.log(2)/2:
+        return 0.5*( (coth(bJ) - 1) - np.sign(bJ)*np.sqrt(coth(bJ)**2 - 2*coth(bJ) -3) )
+    else:
+        return 1
+    
+    
 def compute_states(k):
     ''' 
     Generate all 2^(2^k) states at level k.
